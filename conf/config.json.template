@@ -1,0 +1,17 @@
+{
+  "mongodb": {
+    "mongodb_ip": "127.0.0.1",
+    "mongodb_port": "27017",
+    "mongodb_name": "coke_db"
+  },
+  "doubao_models": {
+    "doubao_1.5_pro": "YOUR_DOUBAO_ENDPOINT_ID",
+    "deepseek-v3-1-terminus": "YOUR_DEEPSEEK_ENDPOINT_ID"
+  },
+  "_comments": {
+    "note": "Replace YOUR_DOUBAO_ENDPOINT_ID and YOUR_DEEPSEEK_ENDPOINT_ID with actual endpoint IDs from https://console.volcengine.com/ark",
+    "endpoint_format": "Endpoint IDs look like: ep-20250127020628-9nf9t",
+    "how_to_get": "1. Go to Volcengine ARK Console, 2. Navigate to Endpoints, 3. Create or find your model endpoints, 4. Copy the endpoint ID"
+  }
+}
+

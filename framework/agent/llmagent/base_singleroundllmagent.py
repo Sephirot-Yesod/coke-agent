@@ -194,18 +194,30 @@ class BaseSingleRoundLLMAgent(BaseAgent):
         # Process the response based on whether function call was used
         if self.output_schema:
             try:
-                if response.choices[0].message.function_call:
-                    # Extract and parse the function call arguments
+                # Check if response has tool_calls (new OpenAI format)
+                if hasattr(response.choices[0].message, 'tool_calls') and response.choices[0].message.tool_calls:
+                    # New format: tool_calls
+                    function_args = response.choices[0].message.tool_calls[0].function.arguments
+                    parsed_result = json.loads(function_args)
+                    return parsed_result
+                elif hasattr(response.choices[0].message, 'function_call') and response.choices[0].message.function_call:
+                    # Old format: function_call
                     function_args = response.choices[0].message.function_call.arguments
                     parsed_result = json.loads(function_args)
                     return parsed_result
-                else:
+                elif response.choices[0].message.content:
+                    # Fallback: try to parse content as JSON
                     parsed_result = json.loads(response.choices[0].message.content)
                     return parsed_result
+                else:
+                    # No valid response
+                    logger.error(f"Agent {self.name}: No valid response from LLM")
+                    return {"response": "", "has_task": False, "needs_reminder": False}
             except json.JSONDecodeError as e:
                     logger.error(f"Agent {self.name}: Failed to parse function call result: {e}")
-                    # Let the exception propagate
-                    raise RuntimeError(f"Failed to parse function call result: {e}")
+                    logger.error(f"Response content: {response.choices[0].message.content if response.choices[0].message.content else 'empty'}")
+                    # Return a fallback response instead of crashing
+                    return {"response": "抱歉，我遇到了一些技术问题...", "has_task": False, "needs_reminder": False}
         else:
             # Return the content directly if no function call was used
             return response.choices[0].message.content
